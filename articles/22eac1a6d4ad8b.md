@@ -3,7 +3,7 @@ title: "GraphQL APIに負荷テストを実施するアイディア"
 emoji: "🦗"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["GraphQL", "Locust"]
-published: false
+published: true
 ---
 GraphQL APIに負荷テストを実施するアイディアを紹介します。ご参考になれば幸いです。
 
@@ -113,7 +113,7 @@ class LoadTest(HttpUser):
     # between(n, n): sleepする間隔を指定
     wait_time = between(5, 20)
 
-    # 認証を行う. on_start タスクはセッションの開始時に必ず実行される.
+    # 認証を行う. on_startはセッションの開始時に必ず実行される.
     def on_start(self):
       #requestのbodyを記載
       payload = [] 
