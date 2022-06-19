@@ -39,8 +39,8 @@ Locust GUIは負荷テスト中のリクエスト統計を表示する機能と�
 ├── payloads
 │   ├── hoge
 │   │   └── hoge.json
-│   ├── fuga
-│   │   └── fuga.json
+│   └── fuga
+│       └── fuga.json
 ├── prometheus
 │   └── prometheus.yml
 └── sample-dashboards
@@ -183,7 +183,7 @@ https://github.com/ContainerSolutions/locust_exporter/blob/main/locust_dashboard
 以下のようにoperation name別のレスポンスタイムを表示することができます。X軸の下にoperation nameが表示されますが、本記事ではカットしています。
 ![](/images/bbe899f8a78cfd/image-1.png)
 
-locust_dashboard.jsonの記載内容のうち、上記のグラフの設定箇所を抜粋しておきます。なお、内容はカスタマイズしています。
+locust_dashboard.jsonの記載内容のうち、上記のグラフの設定箇所を抜粋しておきます。テンプレートをベースにカスタマイズしています。
 :::details grafana/dashboards/locust_dashboard.jsonの抜粋
 ```json
     {

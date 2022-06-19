@@ -55,7 +55,7 @@ export LOCUST_HOST="https://api.example.com" LOCUST_SCENARIO="hoge";docker compo
 ```
 変数化目的は以下になります。
 ```shell
-# staging,production 等、環境毎で共通化したいため、負荷テストを実施するエンドポイントを変数化します
+# 負荷試験用の各種ファイルをstaging,production環境で共通化したいため、負荷テストを実施するエンドポイントを変数化します
 ${LOCUST_HOST}　
 
 # ユーザーが訪問するページによってGraphQLのリクエストが異なると想定しページ毎にtask（シナリオ）を記述しています
@@ -154,11 +154,11 @@ class LoadTest(HttpUser):
 ```
 コード内のコメントでは説明不足と感じることを補足します。
 
-## wait_time
-wait_timeクラスで定義しているwait_timeによって、LocustのHTTPクライアントはランダムな秒数スリープします。下限と上限の時間を調整することで実際のユーザーの行動に近づけることができると思います。LocustのHTTPクライアント数＝同時接続数としたい場合は、constantを使用します。
+## loop_http_request
+GraphQLのoperation nameとHTTPリクエストが1:1であると想定し、HTTPリクエストのボディを記述したjsonファイルを必要なだけ用意します。ページに対応したディレクトリ下（/mnt/locust/payloads/hoge/）にjsonファイルを配置してループを回します。このようにすることで、WebブラウザやiOS/AndroidアプリからAPIに送信するHTTPリクエストに近い負荷を発生させます。
 
-## task内のfor文
-task内のfor文GraphQLのoperation nameとHTTPリクエストが1:1であると想定し、HTTPリクエストのボディを記述したjsonファイルを必要なだけ用意します。ページに対応したディレクトリ下（/mnt/locust/payloads/hoge/）にjsonファイルを配置してループを回します。このようにすることで、WebブラウザやiOS/AndroidアプリからAPIに送信するHTTPリクエストに近い負荷を発生させます。
+## wait_time
+クラスで定義しているwait_timeによって、LocustのHTTPクライアントはランダムな秒数スリープします。下限と上限の時間を調整することで実際のユーザーの行動に近づけることができると思います。LocustのHTTPクライアント数＝同時接続数としたい場合は、constantを使用します。
 
 # 参考にしたブログ
 以下のブログを参考にしています。
