@@ -3,7 +3,7 @@ title: "GraphQL APIにLocustで負荷テストを実施し、operation name別�
 emoji: "📈"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["GraphQL", "Locust", "Grafana"]
-published: false
+published: true
 ---
 Grafanaを使ってLocustの負荷試験の状況をグラフ化する試みの紹介です。
 # 背景
