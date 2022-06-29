@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/datahaikuninja/zenn#readme",
   "dependencies": {
-    "zenn-cli": "^0.1.113"
+    "zenn-cli": "^0.1.114"
   },
   "description": ""
 }
