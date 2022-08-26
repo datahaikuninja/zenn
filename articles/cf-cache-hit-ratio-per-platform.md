@@ -3,7 +3,7 @@ title: "CloudFrontの標準ログからプラットフォーム毎のキャッ�
 emoji: "🔍"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "Athena", "CloudFront"]
-published: false
+published: true
 ---
 # 概要
 CloudFrontの標準ログからプラットフォーム毎のキャッシュHit率を求めるAthenaのクエリを紹介します。
