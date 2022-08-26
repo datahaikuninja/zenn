@@ -3,7 +3,7 @@ title: "AWS WAFのマネージドルールでカウントされたリクエス�
 emoji: "🔍"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "Athena", "waf"]
-published: false
+published: true
 ---
 # 概要
 AWS WAFのマネージドルールでカウントされたリクエストをWAFのログから抽出するAthenaのクエリを紹介します。
