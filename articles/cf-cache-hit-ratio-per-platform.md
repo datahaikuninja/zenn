@@ -38,7 +38,55 @@ CloudFrontに限らず、オリジンの負荷をオフロードするというC
 :::
 
 # Athenaのクエリ
-CloudFrontログをクエリするためのテーブルは作成済みとします。テーブルの作成方法は[公式ドキュメント](https://docs.aws.amazon.com/ja_jp/athena/latest/ug/cloudfront-logs.html)に従います。
+CloudFrontログをクエリするためのテーブルを作成します。
+:::details DDL
+```sql
+CREATE EXTERNAL TABLE cloudfront_logs (
+  `date` DATE,
+  time STRING,
+  x_edge_location STRING,
+  sc_bytes BIGINT,
+  c_ip STRING,
+  cs_method STRING,
+  cs_host STRING,
+  cs_uri_stem STRING,
+  sc_status INT,
+  cs_referer STRING,
+  cs_user_agent STRING,
+  cs_uri_query STRING,
+  cs_cookie STRING,
+  x_edge_result_type STRING,
+  x_edge_request_id STRING,
+  x_host_header STRING,
+  cs_protocol STRING,
+  cs_bytes BIGINT,
+  time_taken FLOAT,
+  x_forwarded_for STRING,
+  ssl_protocol STRING,
+  ssl_cipher STRING,
+  x_edge_response_result_type STRING,
+  cs_protocol_version STRING,
+  fle_status STRING,
+  fle_encrypted_fields STRING,
+  c_port INT,
+  time_to_first_byte FLOAT,
+  x_edge_detailed_result_type STRING,
+  sc_content_type STRING,
+  sc_content_len BIGINT,
+  sc_range_start BIGINT,
+  sc_range_end BIGINT
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LOCATION 's3://CloudFront_bucket_name/'
+TBLPROPERTIES (
+  'skip.header.line.count' = '2'
+)
+```
+:::
+
+~~テーブルの作成方法は[公式ドキュメント](https://docs.aws.amazon.com/ja_jp/athena/latest/ug/cloudfront-logs.html)に従います。~~
+[Athenaの公式ドキュメント](https://docs.aws.amazon.com/ja_jp/athena/latest/ug/cloudfront-logs.html)に記載されている例は、CloudFrontのログ形式が古いようです。
 
 例えば、次のクエリで過去1日間のiPhoneから送信されたリクエストのキャッシュHit率を求めます。
 ```sql
@@ -46,7 +94,7 @@ CloudFrontログをクエリするためのテーブルは作成済みとしま�
 クエリの汎用性のために期間指定にprestoの日付関数を使用する。
 また、一時テーブルを作成しておくと割算の記述が短くなる。
 */
-WITH last_day AS (SELECT * FROM polaris WHERE "date" BETWEEN DATE_ADD('day', -1, CURRENT_DATE) AND CURRENT_DATE)
+WITH last_day AS (SELECT * FROM cloudfront_logs WHERE "date" BETWEEN DATE_ADD('day', -1, CURRENT_DATE) AND CURRENT_DATE)
 
 SELECT
 /*
@@ -83,7 +131,8 @@ ELBやWAFのログならテーブル作成時にログのパスを指定してAt
 ログを溜めているS3のライフサイクルポリシーにもよりますが、CloudFrontのログは溜まりがちだと思うので、Athenaでスキャンしたデータ量に対する課金に気をつけたいです。
 
 実は上記のクエリをスケジュール発行するLambdaとEventBridgeを作って、結果をNewRelicとかに送って可視化しようと思っていました。
-しかし、一時テーブルを作成するときにCloudFrontのログをフルスキャンしていたので、Athenaの費用が高くなりそうで諦めました。
+~~しかし、一時テーブルを作成するときにCloudFrontのログをフルスキャンしていたので、Athenaの費用が高くなりそうで諦めました。~~
+CloudFrontのログをパーティション化することでAthenaの費用を抑えられそうでしたので、AthenaのクエリをLambdaで定期実行する案は諦めなくてもよさそうです。
 
 [^1]:Prestoの日付関数の使用方法についてはこちらを参考にしました。https://qiita.com/AkiQ/items/b865614a6ed7c86953c6
 [^2]:https://docs.aws.amazon.com/ja_jp/athena/latest/ug/presto-functions.html
