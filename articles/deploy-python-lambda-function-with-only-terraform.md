@@ -3,7 +3,7 @@ title: "Lambda(Python)をTerraformだけでデプロイする"
 emoji: "🚀"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "Lambda", "Python", "Terraform"]
-published: false
+published: true
 ---
 # 概要
 Lambda関数(Python)とLambdaレイヤーをterraformだけでデプロイする方法を紹介します。
@@ -68,7 +68,7 @@ terraform {
 # tffileの紹介
 main.tfから、Lambda関数とレイヤーのデプロイに関わる箇所のみを抜粋して記載します。各種リソースの名称や設定値は適宜置き換えてください。
 
-null_resourceの動作の解説は[GolangのLambda関数をTerraformだけでデプロイする](https://dev.classmethod.jp/articles/deploy-golang-lambda-function-with-terraform/)に譲ります。
+null_resourceの動作の解説は[GolangのLambda関数をTerraformだけでデプロイする](https://dev.classmethod.jp/articles/deploy-golang-lambda-function-with-terraform/)に詳しく書かれていますので、本記事では説明を省きます。
 
 依存関係の明示(depends_on)は、null_resourceとdata_resourceのみで問題ありません。
 
