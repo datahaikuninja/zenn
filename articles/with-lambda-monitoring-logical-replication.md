@@ -3,7 +3,7 @@ title: "Lambda(Python)でAurora PostgreSQL論理レプリケーションを監�
 emoji: "🤖"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "Lambda", "Python", "Slack"]
-published: false
+published: true
 ---
 # 概要
 Lambda(Python)で以下の処理（関数）を書いたので、備忘録として記事にします。
@@ -116,11 +116,15 @@ try:
         '''
         print(pg8000DatabaseError)
         errorType = 'Lambda function(pg8000) received an error from the database.'
+
+        # 後述する'b'の処理
         cwLogsInsightQueryResult = issue_query_to_cw_logs(
             CW_LOGS_GROUP,
             CW_LOGS_INSIGHT_QUERY
         )
-        notification_to_slack(
+
+        # 後述する'c'の処理
+        notify_to_slack(
             errorType,
             cwLogsInsightQueryResult
         )
@@ -131,15 +135,11 @@ try:
         '''
         print(pg8000InterfaceError)
         errorType = 'Lambda function(pg8000) raised an internal error.'
-
-        # 後述する'b'の処理
         cwLogsInsightQueryResult = issue_query_to_cw_logs(
             CW_LOGS_GROUP,
             CW_LOGS_INSIGHT_QUERY
         )
-
-        # 後述する'c'の処理
-        notification_to_slack(
+        notify_to_slack(
             errorType,
             cwLogsInsightQueryResult
         )
@@ -154,7 +154,7 @@ try:
             CW_LOGS_GROUP,
             CW_LOGS_INSIGHT_QUERY
         )
-        notification_to_slack(
+        notify_to_slack(
             errorType,
             cwLogsInsightQueryResult
         )
@@ -176,7 +176,7 @@ try:
             CW_LOGS_GROUP,
             CW_LOGS_INSIGHT_QUERY
         )
-        notification_to_slack(
+        notify_to_slack(
             errorType,
             cwLogsInsightQueryResult
         )
@@ -281,7 +281,7 @@ ssm: botostubs.SSM = boto3.client('ssm')
 SSM_PARAMETER_PATH = '/monitoring-logical-replication/'
 
 
-def notification_to_slack(errorType, slackSnipet):
+def notify_to_slack(errorType, slackSnipet):
     '''Slackへアラートを通知する関数
     二通のメッセージをSlackへ送信する。
     まず、アラートのタイトルと後続の対応を指示する内容を通常のメッセージとして送信する。
@@ -395,7 +395,7 @@ def issue_query_to_cw_logs(targetLogGroup, queryStr):
     return results
 
 
-def notification_to_slack(errorType, slackSnipet):
+def notify_to_slack(errorType, slackSnipet):
     ssmParameterPathSlack = f'{SSM_PARAMETER_PATH}slack/'
 
     resp = ssm.get_parameters_by_path(
@@ -516,7 +516,7 @@ def lambda_handler(event, context):
             CW_LOGS_GROUP,
             CW_LOGS_INSIGHT_QUERY
         )
-        notification_to_slack(
+        notify_to_slack(
             errorType,
             cwLogsInsightQueryResult
         )
@@ -528,7 +528,7 @@ def lambda_handler(event, context):
             CW_LOGS_GROUP,
             CW_LOGS_INSIGHT_QUERY
         )
-        notification_to_slack(
+        notify_to_slack(
             errorType,
             cwLogsInsightQueryResult
         )
@@ -540,7 +540,7 @@ def lambda_handler(event, context):
             CW_LOGS_GROUP,
             CW_LOGS_INSIGHT_QUERY
         )
-        notification_to_slack(
+        notify_to_slack(
             errorType,
             cwLogsInsightQueryResult
         )
@@ -553,7 +553,7 @@ def lambda_handler(event, context):
             CW_LOGS_GROUP,
             CW_LOGS_INSIGHT_QUERY
         )
-        notification_to_slack(
+        notify_to_slack(
             errorType,
             cwLogsInsightQueryResult
         )
