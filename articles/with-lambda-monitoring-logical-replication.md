@@ -348,7 +348,7 @@ def notify_to_slack(errorType, slackSnipet):
 ```
 
 # Lambda関数全体
-'a'の処理も含むLambda関数全体も載せておきます。
+関数全体も載せておきます。
 ::: details Lambda関数全体
 ```python
 import json
