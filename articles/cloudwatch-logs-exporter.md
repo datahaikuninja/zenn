@@ -4,6 +4,7 @@ emoji: "💵"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "CloudWatch", "Python"]
 published: true
+publication_name: "vega_c"
 ---
 :::message
 S3にエクスポートされたログのキーにエクスポートタスクIDとログストリーム名が自動的に付与されてしまうため、ログデータのパーティション化は困難でした。Athenaではファイルの場所の指定にワイルドカードやglobパターンを使用することができません。
