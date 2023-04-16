@@ -44,7 +44,7 @@ EventBridgeのAPI Destinationを使ったイベント駆動処理にすれば、
 
 従来、EventBridgeからイベントを受け取って外部APIを呼び出すためにLambda関数を書く必要がありましたが、API Destinationを使えばその必要もありません。
 
-## サンプルケース
+## サンプル
 以下では、AWS CLIでPutEventsを実行し、EventBridgeからNew RelicのMetric APIにECサイトの購入情報をカスタムメトリクスとして送信してみます。（実際の購入情報ではありません）
 
 試してみるには、New Relicのアカウントと[licenseキー](https://docs.newrelic.com/jp/docs/apis/intro-apis/new-relic-api-keys/#license-key)を準備してください。
@@ -139,7 +139,7 @@ aws events put-events \
 
 New Relicにメトリクスデータが取り込まれたことを確認します。
 ```SQL
-FROM Metric SELECT latest(purchaseData) FACET deviceType TIMESERIES AUTO
+FROM Metric SELECT sum(purchaseData) FACET deviceType TIMESERIES AUTO
 ```
 
 ### トラブルシューティング
@@ -161,6 +161,9 @@ New Relicで取り込みエラーが確認できない場合、EventBridgeルー
 https://docs.datadoghq.com/ja/logs/guide/sending-events-and-logs-to-datadog-with-amazon-eventbridge-api-destinations/#%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0
 
 https://docs.aws.amazon.com/ja_jp/eventbridge/latest/userguide/eb-debug-event-delivery.html
+
+## おわりに
+呼び出し元から外部APIを直接呼び出すのではなくEventBridgeに行わせることで、API呼び出しを非同期的に扱うことができますし、リトライ等の考慮ポイントを減らすこともできます。外部APIと連携する要件をもつシステムを設計するとき、EventBridge API Destinationを使えないか検討してみてはいかがでしょうか。
 
 [^1]: API Destinationの解説は以下の発表資料を参照。
 https://speakerdeck.com/_kensh/the-art-of-eventbridge?slide=34
