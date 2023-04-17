@@ -3,6 +3,7 @@ title: "EventBridge API Destinationを使ってNew Relic Metric APIを呼び出�
 emoji: "💥"
 type: "tech"
 topics: ["AWS", "EventBridge", "NewRelic",]
+publication_name: "vega_c"
 published: true
 ---
 ## 概要
