@@ -3,7 +3,7 @@ title: "EventBridge API Destinationを使ってNew Relic Metric APIを呼び出�
 emoji: "💥"
 type: "tech"
 topics: ["AWS", "EventBridge", "NewRelic",]
-published: false
+published: true
 ---
 ## 概要
 Amazon EventBridgeには外部APIとの連携を楽にするAPI Destinationという機能があります。
@@ -28,24 +28,26 @@ New RelicのMetric APIを活用している方、これから使ってみる方�
 - 外部APIのレスポンスを待機する(同期的)
 - 外部APIのレスポンスに応じたエラーハンドリングやリトライ処理が必要
 
-外部API呼び出しの結果によってアプリケーションのパフォーマンスが悪化する可能性がありますし、メインロジックとは無関係のエラーハンドリングやリトライ処理を実装するコストがかかります。
+外部API呼び出しの結果によってアプリケーションのパフォーマンスが悪化する可能性がありますし、メインロジックとは無関係のエラーハンドリングやリトライ処理を実装する必要があります。
 
 素朴な方法のデメリットを解決する方法の一つはバッチ処理です。定期的にデータベースから購入情報を取得して整形し、New Relicへデータを送信します。
 ![](/images/call-nr-metric-api-with-eventbridge/batch.png)
 
 この方法は悪くありませんが、以下の点が気になります。
-- バッチ処理を実行するLambdaやECSの運用管理が必要
+- バッチ処理を実行するLambdaの運用管理が必要
 - リアルタイム性がない
 
-LambdaやECSの料金はほとんど気になりませんが、リソースを運用管理するコストはできればなくしたいです。
+バッチ処理を実行するLambdaの料金はほとんど気になりませんが、リソースを運用管理するコストはできればなくしたいです。
 また、バッチ処理の実行間隔によりますが、New Relicに取り込まれる購入情報は常に実行間隔の分古くなります。リアルタイム性は不可欠というほどではありませんが、まさに今売上にどのような影響があるのか見たいことがあります。
 
-EventBridgeのAPI Destinationを使ったイベント駆動処理にすれば、バッチ処理の気になる点を解消できます。また、送信元はSDKでPutEventsをするだけで済むので実装がシンプルです。[^2]
+EventBridgeのAPI Destinationを使ったイベント駆動処理にすれば、バッチ処理の気になる点を解消できます。また、送信元はSDKでPutEventsをするだけで済むので実装が比較的シンプルです。（PutEventsAPIのエラーハンドリングは必要ですが）[^2]
 
 従来、EventBridgeからイベントを受け取って外部APIを呼び出すためにLambda関数を書く必要がありましたが、API Destinationを使えばその必要もありません。
 
 ## サンプル
 以下では、AWS CLIでPutEventsを実行し、EventBridgeからNew RelicのMetric APIにECサイトの購入情報をカスタムメトリクスとして送信してみます。（実際の購入情報ではありません）
+
+AWS CLIをメトリクスの送信元アプリケーションに見立てています。
 
 試してみるには、New Relicのアカウントと[licenseキー](https://docs.newrelic.com/jp/docs/apis/intro-apis/new-relic-api-keys/#license-key)を準備してください。
 
@@ -127,26 +129,27 @@ https://docs.aws.amazon.com/ja_jp/eventbridge/latest/userguide/eb-create-rule.ht
     }
 ]
 ```
-送信元から受け取ったデータを入力トランスフォーマーでNew Relic Metric APIで有効なJSON形式に変換を行います。[^4]
+送信元から受け取ったデータを、入力トランスフォーマーでNew Relic Metric APIで有効なJSON形式に変換します。[^4]
 送信元でPutEventsするときにNew RelicのMetric APIで有効なJSON形式でデータを作成しても構いません。この記事では、送信元からは変数のみを送信し、EventBridgeで固定値を付け足してメトリクスデータを作成しました。
 
 ### イベントの送信
-CloudShellを立ち上げて構築手順で作成したカスタムバスにデモデータをPutします。[^5]
+CloudShellを立ち上げて、上で構築したカスタムバスに対してPutEventを実行します。[^5]
 ```bash
 aws events put-events \
-  --entries '[{"Source": "test", "DetailType": "purchaseEvent", "EventBusName": "作成したカスタムバス名", "Detail": "{ \"timestamp\": `有効なunixtime`, \"purchaseAmount\": 20000, \"deviceType\": \"iOS\" }"}]'
+  --entries '[{"Source": "test", "DetailType": "purchaseEvent", "EventBusName": "作成したカスタムバス名", "Detail": "{ \"timestamp\": 有効なunixtime, \"purchaseAmount\": 20000, \"deviceType\": \"web\" }"}]'
 ```
 
 New Relicにメトリクスデータが取り込まれたことを確認します。
 ```SQL
 FROM Metric SELECT sum(purchaseData) FACET deviceType TIMESERIES AUTO
 ```
+購入金額をデバイスタイプごとに集計するNRQLです。
 
 ### トラブルシューティング
 New Relicにメトリクスデータが取り込まれていない場合、いくつか確認する箇所があります。
 
 1. EventBridgeルールのモニタリング
-構築手順で作成したルールの呼び出し状況を確認します。`Invocations`, `TriggeredRule`メトリクスが記録されていれば、PutEventsは成功しています。
+上で構築したルールの呼び出し状況を確認します。`Invocations`, `TriggeredRule`メトリクスが記録されていれば、PutEventsは成功しています。
 
 https://docs.aws.amazon.com/ja_jp/eventbridge/latest/userguide/eb-monitoring.html
 
@@ -163,7 +166,7 @@ https://docs.datadoghq.com/ja/logs/guide/sending-events-and-logs-to-datadog-with
 https://docs.aws.amazon.com/ja_jp/eventbridge/latest/userguide/eb-debug-event-delivery.html
 
 ## おわりに
-呼び出し元から外部APIを直接呼び出すのではなくEventBridgeに行わせることで、API呼び出しを非同期的に扱うことができますし、リトライ等の考慮ポイントを減らすこともできます。外部APIと連携する要件をもつシステムを設計するとき、EventBridge API Destinationを使えないか検討してみてはいかがでしょうか。
+呼び出し元から外部APIを直接呼び出すのではなくEventBridgeに行わせることで、API呼び出しを非同期的に扱うことができますし、イベント送信元アプリケーションの実装を比較的シンプルにすることもできます。外部APIと連携する要件をもつシステムを設計するとき、EventBridge API Destinationを使えないか検討してみてはいかがでしょうか。
 
 [^1]: API Destinationの解説は以下の発表資料を参照。
 https://speakerdeck.com/_kensh/the-art-of-eventbridge?slide=34
@@ -176,7 +179,7 @@ https://pages.awscloud.com/rs/112-TZM-766/images/20200122_BlackBelt_EventBridge.
 [^4]: 入力トランスフォーマーの使用方法は以下のドキュメントを参照
 https://docs.aws.amazon.com/ja_jp/eventbridge/latest/userguide/eb-transform-target-input.html
 New Relic Metric APIに送信するデータタイプ、必須のヘッダー、有効なJSON形式は以下のドキュメントを参照
-https://docs.aws.amazon.com/ja_jp/eventbridge/latest/userguide/eb-transform-target-input.html
+https://docs.newrelic.com/jp/docs/data-apis/ingest-apis/metric-api/report-metrics-metric-api/
 
 [^5]: AWS CLIを使用したカスタムイベントの送信方法は以下のドキュメントを参照
 https://docs.aws.amazon.com/ja_jp/eventbridge/latest/userguide/eb-putevents.html#eb-send-events-aws-cli
