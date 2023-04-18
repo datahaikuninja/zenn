@@ -1,5 +1,5 @@
 ---
-title: "EventBridge API Destinationを使ってNew Relic Metric APIを呼び出す"
+title: "EventBridge API Destinationで外部API連携とNew Relic Metrics APIでの実例"
 emoji: "💥"
 type: "tech"
 topics: ["AWS", "EventBridge", "NewRelic",]
