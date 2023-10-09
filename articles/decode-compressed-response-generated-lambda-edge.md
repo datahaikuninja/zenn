@@ -5,7 +5,7 @@ type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "CloudFront", "Lambda", "Python"]
 published: true
 ---
-## Lambda@Edgeで生成したHTTPレスポンスを圧縮したら、Viewerのデコードエラーが発生した
+## Lambda@EdgeでHTTPレスポンスを圧縮したら、Viewerのデコードエラーが発生した
 オリジンリクエストトリガーのLambda関数でHTTPレスポンスを圧縮したら、Viewerのデコードエラーが発生してレスポンスボディをロードできなくなる事象が発生しました。
 
 どのようにエラーを解決したか、備忘録的な記事を書こうと思います。
