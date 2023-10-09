@@ -23,7 +23,7 @@ Lambda@Edgeで圧縮処理を行うのはかなり特殊なケースだと思い
     "headers": {
         "content-encoding": [{
             "key": "Content-Encoding",
-            "value": "compress format"
+            "value": compress_format
         }]
     }
 }
