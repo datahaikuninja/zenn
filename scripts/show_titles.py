@@ -1,3 +1,4 @@
+# ref: https://github.com/sankantsu/zenn/blob/main/scripts/show-titles.py
 from typing import Union
 import os
 import re
